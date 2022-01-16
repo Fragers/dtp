@@ -2,7 +2,7 @@
 
 ### Инструкция по запуску
 - Создать окружение conda: conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch
-- Дополнительно понадобится opencv-python, albumentation, Pillow, numpy, efficientnet_pytorch,
+- Дополнительно понадобится opencv-python, albumentation, Pillow, numpy, efficientnet_pytorch, timm, yolov5(можно с torch hub)
 
 ###В рамках хакатона были протестированы несколько гипотез о поиске дтп, ноутбуки с тренировкой можно найти в папке src/train_notebooks:
 - zero shot classification целых кадров с помощью clip дтп/не дтп 

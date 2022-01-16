@@ -1,3 +1,7 @@
-torch
+conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch
 opencv-python
+albumentation
+Pillow
+numpy
+efficientnet_pytorch
 timm
