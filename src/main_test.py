@@ -16,7 +16,23 @@ import torch
 
 import argparse
 from my_utlis.annotator import MyAnnotator
-from my_utlis.models import CarClassifier, CustomResnext
+from my_utlis.models import CarClassifier, CustomResnext, BrokenCarClassifier, MyEffnet
+
+
+def add_paddings(x0, y0, x1, y1, w, h, pad):
+    """
+    Добавить паддинги к координатам
+    """
+    x0 = int(x0)
+    x0 = max(0, x0 - pad)
+    y0 = int(y0)
+    y0 = max(0, y0 - pad)
+
+    x1 = int(x1)
+    x1 = min(w - 1, x1 + pad)
+    y1 = int(y1)
+    y1 = min(h - 1, y1 + pad)
+    return x0, y0, x1, y1
 
 
 def main(args):
@@ -27,7 +43,8 @@ def main(args):
     # model = torch.hub.load('ultralytics/yolov5', 'custom', 'weights/yolo_weights.pt')
     # model.conf = args.yolo_conf
     gc.collect()
-    car_classfier = CarClassifier('../weights/best_model_120_2.pth')
+    car_classfier = CarClassifier('../weights/eff_model_car.pth')
+    broken_car_classifier = BrokenCarClassifier('../weights/broken_car_resnext.pth')
     torch.cuda.empty_cache()
     if args.save_video:
         size = (640, 480)
@@ -38,9 +55,10 @@ def main(args):
     cap = cv2.VideoCapture(args.in_video_path)
 
     cur_frame = 0
-    w, h = (args.width, args.height)
-    central_point = (w / 2, h / 2)
+    # w, h = (args.width, args.height)
+    # central_point = (w / 2, h / 2)
     use_stream = args.stream
+
     streamer = None
     stream_name = args.stream_name
     num_frame = 0
@@ -49,14 +67,14 @@ def main(args):
         ret, frame = cap.read()
         t = time.time()
         num_frame += 1
-        if num_frame % 5 != 0:
+        if num_frame % 30 != 0:
             continue
         if ret is True and frame.size != 0:
             frame_full = copy.deepcopy(frame)
             h_full = frame.shape[0]
             w_full = frame.shape[1]
-            scale_x = w_full / w
-            scale_y = h_full / h
+            # scale_x = w_full / w
+            # scale_y = h_full / h
             # frame = cv2.resize(frame, (w, h), interpolation=cv2.INTER_AREA)
             frame_copy = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame_full = cv2.cvtColor(frame_full, cv2.COLOR_BGR2RGB)
@@ -83,12 +101,21 @@ def main(args):
                 if cls_name not in ['car', 'truck', 'bus', 'boat', 'motorcycle']:
                     continue
                 # MyAnnotator.put_text(frame, cls_name + " " + str(round(conf, 2)), (x0, y0))
+
                 crop = frame_copy[y0:y1, x0:x1]
-                car_name, conf_cls, np_pred = car_classfier.infer(crop)
+                car_name, conf_cls, np_pred = car_classfier.infer(copy.deepcopy(crop))
+                x10, y10, x11, y11 = add_paddings(x0, y0, x1, y1, w_full, h_full, 15)
+
+                broken_crop = copy.deepcopy(frame_copy[y10:y11, x10:x11])
+                # print(y10, y11, x10, x11, frame_copy.shape)
+                cv2.imshow('123', broken_crop)
+
+                broken_car_name, broken_conf_cls, broken_np_pred = broken_car_classifier.infer(broken_crop)
                 MyAnnotator.put_text(frame,
-                                     car_name + ' ' + str(round(conf_cls, 2)) + str(x1 - x0) + ' ' + str(y1 - y0),
+                                     car_name + ' ' + broken_car_name,
                                      (x0, y0))
             cur_frame += 1
+            frame = cv2.resize(frame, (1280, 720))
             cv2.imshow("Demo", frame)
             # time.sleep(0.1)
 
@@ -109,7 +136,7 @@ if __name__ == "__main__":
     parser.add_argument("--yolo_weights", default='../weights/yolov5m6.pt')
     parser.add_argument("--save_video", default=True)
     parser.add_argument("--out_video_path", default='../inference/out.avi')
-    parser.add_argument("--in_video_path", default='../data/video/50.mp4')
+    parser.add_argument("--in_video_path", default='../data/video_2/Зафиксировано ДТП и присутствует спецтранспорт/21.mp4')
 
     parser.add_argument("--stream", default=True)
     parser.add_argument("--stream_name", default='igor_test')

@@ -17,9 +17,10 @@ import torch
 
 import argparse
 from my_utlis.annotator import MyAnnotator
-from my_utlis.models import CarClassifier, CustomResnext, DtpClassifier
+from my_utlis.models import CarClassifier, CustomResnext, DtpClassifier, MyEffnet
 
 dtp_videos = [
+    1,
     2,
     4,
     5,
@@ -50,13 +51,15 @@ def main(args):
     streamer = None
     stream_name = args.stream_name
 
-    dtp_classifier = DtpClassifier('../weights/trans_224.pth')
+    dtp_classifier = DtpClassifier('../weights/dtp_full_eff_384_2.pth')
     acc = 0
     all_dtp_cnt = 0
     for video_number, video_file in enumerate(os.listdir('../data/video')):
 
         cap = cv2.VideoCapture(os.path.join('../data/video', video_file))
         video_id = video_file.split('.')[0]
+        if int(video_id) not in dtp_videos:
+            continue
         cnt_dtp = 0
         cnt_not_dtp = 0
         num_frame = 0
@@ -98,9 +101,9 @@ def main(args):
 
         acc += int(true_label == pred)
         print(video_number + 1, '/', len(os.listdir('../data/video')), video_id, round(acc / (video_number + 1), 2)
-              , '\r\n', 'true: ', true_label
-              , '\r\n', '|', 'pred:', pred
-              , '\r\n', '|', cnt_dtp
+              , '\n\r', 'true: ', true_label
+              , '\n\r', '|', 'pred:', pred
+              , '\n\r', '|', cnt_dtp
               )
 
     print(acc)

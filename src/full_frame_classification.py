@@ -7,7 +7,7 @@ import torch
 
 import argparse
 from my_utlis.annotator import MyAnnotator
-from my_utlis.models import CarClassifier, CustomResnext, DtpClassifier
+from my_utlis.models import CarClassifier, CustomResnext, DtpClassifier, MyEffnet
 
 
 def main(args):
@@ -20,7 +20,7 @@ def main(args):
     streamer = None
     stream_name = args.stream_name
     num_frame = 0
-    dtp_classifier = DtpClassifier('../weights/trans_224.pth')
+    dtp_classifier = DtpClassifier('../weights/dtp_full_eff_384_2.pth')
     if args.save_video:
         size = (640, 480)
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("--yolo_weights", default='../weights/yolov5m6.pt')
     parser.add_argument("--save_video", default=True)
     parser.add_argument("--out_video_path", default='../inference/out.avi')
-    parser.add_argument("--in_video_path", default='../data/video/50.mp4')
+    parser.add_argument("--in_video_path", default='../data/video/1.mp4')
 
     parser.add_argument("--stream", default=True)
     parser.add_argument("--stream_name", default='igor_test')
