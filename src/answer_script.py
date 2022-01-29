@@ -73,8 +73,8 @@ def main(car_classifier_weights, yolo_weights, yolo_conf, video_dir):
 
     for video_number, video_file in enumerate(os.listdir(video_dir)):
         print(video_number)
-        if video_file == '1.mp4':
-            continue
+        # if video_file == '1.mp4':
+        #     continue
         cap = cv2.VideoCapture(os.path.join(video_dir, video_file))
         video_id = video_file.split('.')[0]
         tracker = Tracker()
