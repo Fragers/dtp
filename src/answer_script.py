@@ -1,3 +1,4 @@
+import copy
 import os
 import time
 
@@ -66,15 +67,16 @@ def main(car_classifier_weights, yolo_weights, yolo_conf, video_dir):
     # Модель для классификации типа машин
     car_classfier = CarClassifier(car_classifier_weights)
 
-    # dtp_classifier = DtpClassifier('../weights/trans_224.pth')
+    dtp_classifier = DtpClassifier('../weights/resnext_car4_with_broken_car.pth')
+
     acc = 0
     all_dtp_cnt = 0
     answer_json = []
 
     for video_number, video_file in enumerate(os.listdir(video_dir)):
         print(video_number)
-        # if video_file == '1.mp4':
-        #     continue
+        if video_file == '1.mp4':
+            continue
         cap = cv2.VideoCapture(os.path.join(video_dir, video_file))
         video_id = video_file.split('.')[0]
         tracker = Tracker()
@@ -132,6 +134,7 @@ def main(car_classifier_weights, yolo_weights, yolo_conf, video_dir):
                         x0, y0, x1, y1 = int(x0t), int(y0t), int(x1t), int(y1t)
                         crop = frame_copy[y0:y1, x0:x1]
                         car_name, conf_cls, np_pred = car_classfier.infer(crop)
+
                         # print(car_name)
                         tracker.update_cls(_id, car_name)
                         # print(_id, frame_number)
@@ -169,6 +172,7 @@ def main(car_classifier_weights, yolo_weights, yolo_conf, video_dir):
                 os.mkdir('inference_videos')
             size = (1920, 1080)
             tmp_video_number = video_file
+            tmp2 = video_file.split('.')[0]
             out = cv2.VideoWriter(os.path.join('inference_videos', tmp_video_number),
                                   fourcc, 25, size)
 
@@ -184,6 +188,32 @@ def main(car_classifier_weights, yolo_weights, yolo_conf, video_dir):
                     if frame_number >= start_dtp:
                         out.write(frame)
                         # cv2.waitKey(10)
+                    if frame_number == start_dtp:
+                        result = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                        results = model(result, size=1280)
+                        dets = []
+
+                        if not results.pandas().xyxy[0].empty:
+                            for res in range(len(results.pandas().xyxy[0])):
+                                r = results.pandas().xyxy[0].to_numpy()[res]
+                                # print(r)
+                                if list(r)[6] not in ['car', 'truck', 'train']:
+                                    continue
+                                dets.append(list(r))
+                                # only_bbox.append(list(r)[:4])
+                            for cur_det_id in range(len(dets)):
+                                x0, y0, x1, y1, conf, cls_id, cls_name = dets[cur_det_id]
+                                x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
+                                crop = frame[y0:y1, x0:x1]
+                                car_name, conf_cls, np_pred = car_classfier.infer(copy.deepcopy(crop))
+                                car_name_d, conf_cls, np_pred = dtp_classifier.infer(copy.deepcopy(crop))
+                                MyAnnotator.rectangle(frame, (x0, y0), (x1, y1))
+                                MyAnnotator.put_text(frame,
+                                                     car_name,
+                                                     (x0, y1))
+                                cv2.imwrite(os.path.join('inference_videos', tmp2 + '.png'), frame)
+
+
                 else:
                     break
             cap.release()
