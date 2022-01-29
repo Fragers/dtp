@@ -1,0 +1,52 @@
+[
+  {
+    "video_name": "1.mp4",
+    "video_type": "not dtp",
+    "start_timestamp": -1
+  },
+  {
+    "video_name": "10.mp4",
+    "video_type": "dtp",
+    "start_timestamp": 360
+  },
+  {
+    "video_name": "2.mp4",
+    "video_type": "not dtp",
+    "start_timestamp": -1
+  },
+  {
+    "video_name": "3.mp4",
+    "video_type": "not dtp",
+    "start_timestamp": -1
+  },
+  {
+    "video_name": "4.mp4",
+    "video_type": "not dtp",
+    "start_timestamp": -1
+  },
+  {
+    "video_name": "5.mp4",
+    "video_type": "not dtp",
+    "start_timestamp": -1
+  },
+  {
+    "video_name": "6.mp4",
+    "video_type": "dtp",
+    "start_timestamp": 480
+  },
+  {
+    "video_name": "7.mp4",
+    "video_type": "not dtp",
+    "start_timestamp": -1
+  },
+  {
+    "video_name": "8.mp4",
+    "video_type": "dtp",
+    "start_timestamp": 30
+  },
+  {
+    "video_name": "9.mp4",
+    "video_type": "not dtp",
+    "start_timestamp": -1
+  }
+]

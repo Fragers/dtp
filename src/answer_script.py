@@ -75,8 +75,8 @@ def main(car_classifier_weights, yolo_weights, yolo_conf, video_dir):
 
     for video_number, video_file in enumerate(os.listdir(video_dir)):
         print(video_number)
-        if video_file == '1.mp4':
-            continue
+        # if video_file == '1.mp4':
+        #     continue
         cap = cv2.VideoCapture(os.path.join(video_dir, video_file))
         video_id = video_file.split('.')[0]
         tracker = Tracker()
@@ -218,7 +218,7 @@ def main(car_classifier_weights, yolo_weights, yolo_conf, video_dir):
                     break
             cap.release()
             out.release()
-            break
+            # break
         answer_json.append(cur_json)
 
         print(cur_json)
@@ -235,5 +235,5 @@ if __name__ == "__main__":
     # Yolo conf
     yolo_conf = 0.5
     # Path to directory with video
-    video_dir = '../data/video_2/Зафиксировано ДТП и присутствует спецтранспорт'
+    video_dir = 'D:\\Downloads\\10 роликов тестовых'
     main(car_classifier_weights, yolo_weights, yolo_conf, video_dir)
